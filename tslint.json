@@ -12,13 +12,13 @@
     "directive-selector": [
       true,
       "attribute",
-      "ngBasics",
+      "ngb",
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "ng-basics",
+      "ngb",
       "kebab-case"
     ],
     "import-blacklist": [
