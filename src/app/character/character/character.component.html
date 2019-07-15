@@ -1,1 +1,34 @@
-<ngb-character-list></ngb-character-list>
+<mat-card>
+
+  <mat-card-header>Edit character</mat-card-header>
+
+  <br>
+
+  <mat-card-content>
+    <form>
+
+      <div>
+        <mat-form-field>
+          <input [(ngModel)]="character.name" matInput placeholder="name" name="name">
+        </mat-form-field>
+      </div>
+
+      <div>
+        <mat-form-field>
+          <input [(ngModel)]="character.culture" matInput placeholder="Culture" name="culture">
+        </mat-form-field>
+      </div>
+
+      <button mat-raised-button color="primary" (click)="addCharacter()">
+        Add
+      </button>
+
+    </form>
+
+    <div>
+      {{characters | json}}
+    </div>
+
+  </mat-card-content>
+
+</mat-card>
