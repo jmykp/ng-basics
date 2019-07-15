@@ -11,7 +11,7 @@ import {
   MatListModule,
   MatGridListModule,
   MatCardModule,
-  MatMenuModule
+  MatMenuModule, MatFormFieldModule, MatInputModule
 } from '@angular/material';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
@@ -29,6 +29,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
     MatGridListModule,
     MatCardModule,
     MatMenuModule,
+    MatFormFieldModule,
+    MatInputModule,
     RouterModule
   ]
 })
