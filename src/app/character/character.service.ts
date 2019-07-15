@@ -30,6 +30,7 @@ export class CharacterService {
   }
 
   create(character: Character) {
+    character.id = this.characters[this.characters.length - 1].id + 1;
     this.characters.push(character);
   }
 }

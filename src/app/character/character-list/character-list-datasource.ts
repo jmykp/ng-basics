@@ -1,27 +1,22 @@
 import { DataSource } from '@angular/cdk/collections';
+import { Injectable } from '@angular/core';
 import { MatPaginator, MatSort } from '@angular/material';
 import { map } from 'rxjs/operators';
 import { Observable, of as observableOf, merge } from 'rxjs';
+import { CharacterService } from '../character.service';
 import { Character } from '../model/character';
 
-// TODO: replace this with real data from your application
-const EXAMPLE_DATA: Character[] = [
-  { id: 1, name: 'Daenerys Targaryen', culture: 'Valyrian'},
-  { id: 2, name: 'Jon Snow', culture: 'Northmen'}
-];
-
-/**
- * Data source for the CharacterList view. This class should
- * encapsulate all logic for fetching and manipulating the displayed data
- * (including sorting, pagination, and filtering).
- */
+@Injectable({
+  providedIn: 'root'
+})
 export class CharacterListDataSource extends DataSource<Character> {
-  data: Character[] = EXAMPLE_DATA;
+  data: Character[] = [];
   paginator: MatPaginator;
   sort: MatSort;
 
-  constructor() {
+  constructor(private characterService: CharacterService) {
     super();
+    this.data = this.characterService.readAll();
   }
 
   /**

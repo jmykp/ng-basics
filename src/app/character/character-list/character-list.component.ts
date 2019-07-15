@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTable } from '@angular/material';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Character } from '../model/character';
 import { CharacterListDataSource } from './character-list-datasource';
 
@@ -12,18 +13,33 @@ export class CharacterListComponent implements AfterViewInit, OnInit {
   @ViewChild(MatPaginator, {static: false}) paginator: MatPaginator;
   @ViewChild(MatSort, {static: false}) sort: MatSort;
   @ViewChild(MatTable, {static: false}) table: MatTable<Character>;
-  dataSource: CharacterListDataSource;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['id', 'name', 'culture'];
 
+  constructor(private router: Router,
+              private route: ActivatedRoute,
+              private dataSource: CharacterListDataSource
+  ) { }
+
   ngOnInit() {
-    this.dataSource = new CharacterListDataSource();
   }
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;
     this.table.dataSource = this.dataSource;
+  }
+
+  showDetails(character: Character) {
+    this.router.navigate([`./${character.id}`], {
+      relativeTo: this.route
+    });
+  }
+
+  createCharacter() {
+    this.router.navigate(['./create'], {
+      relativeTo: this.route
+    });
   }
 }

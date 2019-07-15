@@ -19,15 +19,11 @@
         </mat-form-field>
       </div>
 
-      <button mat-raised-button color="primary" (click)="addCharacter()">
-        Add
+      <button mat-raised-button color="primary" (click)="save()" type="button">
+        Save
       </button>
 
     </form>
-
-    <div>
-      {{characters | json}}
-    </div>
 
   </mat-card-content>
 
