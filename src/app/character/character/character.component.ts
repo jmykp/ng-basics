@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { first } from 'rxjs/internal/operators/first';
 import { CharacterService } from '../character.service';
 import { Character } from '../model/character';
 
@@ -18,12 +19,27 @@ export class CharacterComponent implements OnInit {
               private characterService: CharacterService) { }
 
   ngOnInit() {
-    const id = this.route.snapshot.params.id;
-    if (id === 'create') {
-      this.isCreateMode = true;
-    } else {
-      this.character = this.characterService.read(Number(id));
-    }
+    this.route.params
+      .pipe(first())
+      .toPromise()
+      .then(params => {
+        const id = params.id;
+        if (id === 'create') {
+          this.isCreateMode = true;
+        } else {
+          this.characterService.read(Number(id))
+            .then(data => {
+              this.character = data;
+            })
+            .catch(err => {
+              console.error(err);
+            });
+        }
+      })
+      .catch(err => {
+        console.error(err);
+      });
+
   }
 
   addCharacter() {

@@ -6,6 +6,8 @@ import { Character } from './model/character';
 })
 export class CharacterService {
 
+  readonly baseUrl = 'http://localhost:3000/characters';
+
   characters: Character[] = [
     { id: 1, name: 'Daenerys Targaryen', culture: 'Valyrian'},
     { id: 2, name: 'Jon Snow', culture: 'Northmen'}
@@ -13,9 +15,11 @@ export class CharacterService {
 
   constructor() { }
 
-  read(id: number): Character {
-    const result = this.characters.filter(character => character.id === id);
-    return result.length > 0 ? result[0] : null;
+  read(id: number): Promise<Character> {
+    return fetch(`${this.baseUrl}/${id}`)
+      .then(response => {
+        return response.json();
+      });
   }
 
   readAll(): Character[] {
