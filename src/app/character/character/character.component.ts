@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
+import { CharacterService } from '../character.service';
 import { Character } from '../model/character';
 
 @Component({
@@ -10,18 +12,15 @@ export class CharacterComponent implements OnInit {
 
   character: Character = {} as Character;
 
-  characters: Character[] = [
-    { id: 1, name: 'Daenerys Targaryen', culture: 'Valyrian'},
-    { id: 2, name: 'Jon Snow', culture: 'Northmen'}
-  ];
-
-  constructor() { }
+  constructor(private route: ActivatedRoute,
+              private characterService: CharacterService) { }
 
   ngOnInit() {
+    const id = this.route.snapshot.params.id;
+    this.character = this.characterService.read(Number(id));
   }
 
   addCharacter() {
-    this.characters.push(this.character);
     this.character = {} as Character;
   }
 
