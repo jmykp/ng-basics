@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, Subject } from 'rxjs';
 import { first } from 'rxjs/internal/operators/first';
+import { switchMap } from 'rxjs/internal/operators/switchMap';
+import { catchError, filter, pluck, takeUntil } from 'rxjs/operators';
 import { CharacterService } from '../character.service';
 import { Character } from '../model/character';
 
@@ -9,37 +12,28 @@ import { Character } from '../model/character';
   templateUrl: './character.component.html',
   styleUrls: ['./character.component.scss']
 })
-export class CharacterComponent implements OnInit {
+export class CharacterComponent implements OnInit, OnDestroy {
 
-  isCreateMode = false;
+  isCreateMode = true;
   character: Character = {} as Character;
+  private destroy = new Subject<boolean>();
 
   constructor(private route: ActivatedRoute,
               private router: Router,
               private characterService: CharacterService) { }
 
   ngOnInit() {
-    this.route.params
-      .pipe(first())
-      .toPromise()
-      .then(params => {
-        const id = params.id;
-        if (id === 'create') {
-          this.isCreateMode = true;
-        } else {
-          this.characterService.read(Number(id))
-            .then(data => {
-              this.character = data;
-            })
-            .catch(err => {
-              console.error(err);
-            });
-        }
-      })
-      .catch(err => {
-        console.error(err);
-      });
-
+    this.route.params.pipe(
+      pluck('id'),
+      filter(id => id !== 'create'),
+      switchMap((id: number) => this.characterService.read(Number(id))),
+      takeUntil(this.destroy)
+    ).subscribe((character: Character) => {
+      this.character = character;
+      this.isCreateMode = false;
+    }, err => {
+      console.error('Error loading character!');
+    });
   }
 
   addCharacter() {
@@ -47,13 +41,20 @@ export class CharacterComponent implements OnInit {
   }
 
   save() {
+    let response$: Observable<Character>;
     if (this.isCreateMode) {
-      this.characterService.create(this.character);
+      response$ = this.characterService.create(this.character);
     } else {
-      this.characterService.update(this.character);
+      response$ = this.characterService.update(this.character);
     }
+    response$.subscribe(() => {
+      alert('Successfully saved!');
+    });
     this.router.navigate([`../`], { relativeTo: this.route });
-    alert('Successfully saved!');
   }
 
+  ngOnDestroy(): void {
+    this.destroy.next(true);
+    this.destroy.complete();
+  }
 }

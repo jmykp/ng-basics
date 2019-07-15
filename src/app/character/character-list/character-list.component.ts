@@ -1,8 +1,8 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatSort, MatTable } from '@angular/material';
 import { ActivatedRoute, Router } from '@angular/router';
+import { CharacterService } from '../character.service';
 import { Character } from '../model/character';
-import { CharacterListDataSource } from './character-list-datasource';
 
 @Component({
   selector: 'ngb-character-list',
@@ -19,16 +19,15 @@ export class CharacterListComponent implements AfterViewInit, OnInit {
 
   constructor(private router: Router,
               private route: ActivatedRoute,
-              private dataSource: CharacterListDataSource
+              private characterService: CharacterService
   ) { }
 
   ngOnInit() {
+    this.table.renderRows();
   }
 
   ngAfterViewInit() {
-    this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-    this.table.dataSource = this.dataSource;
+    this.table.dataSource = this.characterService.readAll();
   }
 
   showDetails(character: Character) {

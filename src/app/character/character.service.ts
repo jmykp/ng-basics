@@ -1,4 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { of } from 'rxjs/internal/observable/of';
+import { catchError } from 'rxjs/operators';
 import { Character } from './model/character';
 
 @Injectable({
@@ -8,33 +12,33 @@ export class CharacterService {
 
   readonly baseUrl = 'http://localhost:3000/characters';
 
-  characters: Character[] = [
-    { id: 1, name: 'Daenerys Targaryen', culture: 'Valyrian'},
-    { id: 2, name: 'Jon Snow', culture: 'Northmen'}
-  ];
-
-  constructor() { }
-
-  read(id: number): Promise<Character> {
-    return fetch(`${this.baseUrl}/${id}`)
-      .then(response => {
-        return response.json();
-      });
+  catch = () => {
+    alert('Verbindungsprobleme');
+    return of(null);
   }
 
-  readAll(): Character[] {
-    return this.characters;
+  constructor(private httpClient: HttpClient) { }
+
+  readAll(): Observable<Character[]> {
+    return this.httpClient.get<Character[]>(`${this.baseUrl}?_start=20&_end=120`)
+      .pipe(catchError(() => {
+        alert('Verbindungsprobleme');
+        return of([]);
+      }));
   }
 
-  update(character: Character) {
-    const result = this.characters.findIndex(char => char.id === character.id);
-    if (result >= 0) {
-      this.characters[result] = character;
-    }
+  read(id: number): Observable<Character> {
+    return this.httpClient.get<Character>(`${this.baseUrl}/${id}`)
+      .pipe(catchError(this.catch));
   }
 
-  create(character: Character) {
-    character.id = this.characters[this.characters.length - 1].id + 1;
-    this.characters.push(character);
+  update(character: Character): Observable<Character> {
+    return this.httpClient.put<Character>(`${this.baseUrl}/${character.id}`, character)
+      .pipe(catchError(this.catch));
+  }
+
+  create(character: Character): Observable<Character> {
+    return this.httpClient.post<Character>(this.baseUrl, character)
+      .pipe(catchError(this.catch));
   }
 }
