@@ -23,7 +23,9 @@ export class CharacterListComponent implements AfterViewInit, OnInit {
   ) { }
 
   ngOnInit() {
-    this.table.renderRows();
+    if (this.table) {
+      this.table.renderRows();
+    }
   }
 
   ngAfterViewInit() {
