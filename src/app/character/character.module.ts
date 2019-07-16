@@ -1,7 +1,6 @@
-import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import {
   MatButtonModule,
   MatCardModule,
@@ -35,7 +34,7 @@ import { CharacterComponent } from './character/character.component';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule,
+    ReactiveFormsModule,
     MatButtonModule
   ]
 })

@@ -1,9 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
-import { first } from 'rxjs/internal/operators/first';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
-import { catchError, filter, pluck, takeUntil } from 'rxjs/operators';
+import { filter, pluck, takeUntil } from 'rxjs/operators';
 import { CharacterService } from '../character.service';
 import { Character } from '../model/character';
 
@@ -16,39 +16,53 @@ export class CharacterComponent implements OnInit, OnDestroy {
 
   isCreateMode = true;
   character: Character = {} as Character;
+  form: FormGroup;
+
   private destroy = new Subject<boolean>();
 
-  constructor(private route: ActivatedRoute,
+  constructor(private characterService: CharacterService,
               private router: Router,
-              private characterService: CharacterService) { }
+              private route: ActivatedRoute,
+              private fb: FormBuilder) {
+  }
 
   ngOnInit() {
+    this.initForm();
+    this.form.patchValue({});
+
     this.route.params.pipe(
       pluck('id'),
       filter(id => id !== 'create'),
       switchMap((id: number) => this.characterService.read(Number(id))),
       takeUntil(this.destroy)
     ).subscribe((character: Character) => {
-      this.character = character;
-      this.isCreateMode = false;
-    }, err => {
+      if (character !== null) {
+        this.form.patchValue(character);
+        this.isCreateMode = false;
+      } else {
+        this.form.disable();
+      }
+    }, () => {
       console.error('Error loading character!');
     });
   }
 
-  addCharacter() {
-    this.character = {} as Character;
-  }
-
   save() {
+    if (!this.form.valid) {
+      return;
+    }
     let response$: Observable<Character>;
     if (this.isCreateMode) {
-      response$ = this.characterService.create(this.character);
+      response$ = this.characterService.create(this.form.getRawValue());
     } else {
-      response$ = this.characterService.update(this.character);
+      response$ = this.characterService.update(this.form.getRawValue());
     }
-    response$.subscribe(() => {
-      alert('Successfully saved!');
+    response$
+      .pipe(takeUntil(this.destroy))
+      .subscribe(data => {
+        if (data !== null) {
+          alert('Successfully saved!');
+        }
     });
     this.router.navigate([`../`], { relativeTo: this.route });
   }
@@ -56,5 +70,13 @@ export class CharacterComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy.next(true);
     this.destroy.complete();
+  }
+
+  private initForm(): void {
+    this.form = this.fb.group({
+      id: [{ value: null, disabled: true }],
+      name: [null, [Validators.required, Validators.maxLength(30)]],
+      culture: [null]
+    });
   }
 }
